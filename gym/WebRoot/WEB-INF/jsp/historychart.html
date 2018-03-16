@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>历史数据</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="dist/amui/css/amazeui.min.css" />
+		<link rel="stylesheet" href="dist/font/iconfont.css" />
+		<link rel="stylesheet" href="dist/css/home.css" />
+		<script type="text/javascript" src="dist/amui/js/jquery.min.js"></script>
+		<script type="text/javascript" src="dist/amui/js/amazeui.min.js"></script>
+		<script type="text/javascript" src="dist/js/Chart.min.js"></script>
+
+	</head>
+
+	<body class="black-eb">
+		<style>
+			html {
+				-ms-touch-action: none;
+				height: 100%;
+			}
+			body {
+				overflow: hidden;
+				/* this is important to prevent the whole page to bounce */
+				
+				height: 100%;
+			}
+		</style>
+		<div class="heder chart">
+			<span class="image"></span>
+			<h3 class="name">爸爸</h3>
+			<p class="valuer"><span><b class="icon-green radius"></b><b class="van">高压</b></span><span><b class="icon-yellow radius"></b><b class="van">低压</b></span><span><b class="icon-red radius"></b><b class="van">平均</b></span></p>
+			<span class="iconr quan"><i class="iconfont icon-10"></i></span>
+		</div>
+		<div id="chartw" data-am-widget="tabs" class="am-tabs am-tabs-default">
+			<ul class="am-tabs-nav am-cf">
+				<li class="am-active"><a href="[data-tab-panel-0]">日</a></li>
+				<li class=""><a href="[data-tab-panel-1]">周</a></li>
+				<li class=""><a href="[data-tab-panel-2]">月</a></li>
+				<li class=""><a href="[data-tab-panel-3]">年</a></li>
+			</ul>
+			<div class="am-tabs-bd">
+				<div data-tab-panel-0 class="am-tab-panel am-active">
+					<canvas id="myChart" height="320"></canvas>
+				</div>
+				<div data-tab-panel-1 class="am-tab-panel ">
+					<canvas id="myChart1" height="320"></canvas>
+				</div>
+				<div data-tab-panel-2 class="am-tab-panel ">
+					<canvas id="myChart2" height="320"></canvas>
+				</div>
+				<div data-tab-panel-3 class="am-tab-panel ">
+					<canvas id="myChart3" height="320"></canvas>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+		function days(id,data){
+	     id==null?id="myChart":"";
+	     if(data==null){
+	    var nam=$(this).attr("href");
+	    console.log(nam);
+	     }
+		 var ctx = document.getElementById(id).getContext("2d");
+		 var opt={
+		 	bezierCurve : false,/*贝*/
+		 }
+         var myNewChart = new Chart(ctx).Line(data,opt);	
+		}
+			function resizeCanvas(){  
+	      var width = document.getElementById('chartw').offsetWidth-20; 
+	      $('#myChart').attr('width', width);  
+	      $('#myChart1').attr('width', width);  
+	  	  $('#myChart2').attr('width', width);
+	      $('#myChart3').attr('width', width);  
+		   }
+			$(document).ready(function(){
+			resizeCanvas();	
+			
+			})
+		$('#chartw').find('a').on('opened.tabs.amui', function(e) {
+        if($(this).text()=="日"){
+var data = {
+	labels : ["January","February","March","April","May","June","July"],
+	datasets : [
+		{
+			fillColor : "transparent",/*背景色*/
+			strokeColor : "#00c112",
+			pointColor : "#00c112",
+			pointStrokeColor : "#fff",
+			data : [65,59,90,81,56,55,40]
+		},
+		{
+			fillColor : "transparent",
+			strokeColor : "#f29248",
+			pointColor : "#f29248",
+			pointStrokeColor : "#fff",
+			data : [28,48,40,19,96,27,100]
+		}
+	]
+}
+days("myChart",data);
+         }
+         })	
+		</script>
+	</body>
+
+</html>

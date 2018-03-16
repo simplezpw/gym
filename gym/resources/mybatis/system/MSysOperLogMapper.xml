@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MSysOperLogMapper">
+	
+	<select id="sysoperlistPage" parameterType="page" resultType="pd">
+		select u.name, u.username, o.sysuid, o.id, o.opermsg, o.logtime 
+		from sys_oper_log o, sys_user u
+		where o.sysuid = u.USER_ID
+		<if test="pd.sysuid != null and pd.sysuid != ''">
+			and o.sysuid = #{pd.sysuid}
+		</if>
+		<if test="pd.keyword != null and pd.keyword != ''">
+			and o.opermsg like concat('%', #{pd.keyword} ,'%')
+		</if>
+	 	<if test="pd.stime!=null and pd.stime!=''">
+		  	AND	o.logtime >= #{pd.stime} 
+	  	</if> 
+	  	<if test="pd.etime!=null and pd.etime!=''">
+		  	AND o.logtime &lt;= #{pd.etime} 
+	  	</if>
+	  	order by o.logtime desc
+	</select>
+	
+	<delete id="deleteoperlog" parameterType="pd"> 
+		delete from sys_oper_log 
+		where 1=1
+			<if test="id != null and id > 0">
+				and id = #{id}
+			</if>
+	</delete>
+	
+	<insert id="insert" parameterType="pd">
+		insert into sys_oper_log
+		(sysuid, opermsg, logtime)
+		values
+		(#{sysuid}, #{opermsg}, now())
+	</insert>
+	
+	<select id="loginrecordlistPage" parameterType="page" resultType="pd">
+		select  
+			r.userid , u.nick, r.id,
+			(select b.title from user_order a, goods b 
+				where a.goodid = b.id and a.userid = r.userid limit 0,1) as title, 
+			DATE_FORMAT(r.logtime, '%Y-%m-%d %H:%i:%s') as logtime
+		from login_record r left join user_info u on r.userid = u.userid
+		where 1=1
+		<if test="pd.stime!=null and pd.stime!=''">
+		  	AND	r.logtime >= #{pd.stime} 
+	  	</if> 
+	  	<if test="pd.etime!=null and pd.etime!=''">
+		  	AND r.logtime &lt;= #{pd.etime} 
+	  	</if>
+		order by r.logtime desc
+	</select>
+	
+</mapper>

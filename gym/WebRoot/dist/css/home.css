@@ -1,0 +1,344 @@
+.black-eb{
+	background: #ebebeb;
+}
+.am-list-border>li>a{
+	position: relative;
+	padding:2.2rem 0 2.2rem  80px;
+	color: #222;
+}
+.iconl{
+	position: absolute;
+	border-radius: 50%;
+	width: 50px;
+	top:50%;
+	color: #fff;
+	text-align: center;
+	line-height: 50px;
+	left: 10px;
+	margin-top: -25px;
+	height: 50px;
+	display: block;
+}
+.iconr{
+	position: absolute;
+	border-radius: 50%;
+	width: 50px;
+	top:50%;
+	line-height: 50px;
+	text-align: center;
+	right: 10px;
+	margin-top: -25px;
+	height: 50px;
+	display: block;
+}
+.icon-blue{
+	background: #00a8ff;
+}
+.icon-zi{
+	background: #e958ff;
+}
+.icon-green{
+	background: #00e600;
+}
+.icon-yellow{
+	background: #f2914a;
+}
+.icon-red{
+	background: #ff0000;
+}
+.icon-zong{
+	background: #ca913d;
+}
+.iconfont {
+	font-size: 20px;
+}
+.icon-red-fd{
+background: #fd687c;
+}
+.icon-blue-61{
+background: #609be5;	
+}
+.icon-blue-fa{
+background: #fab55a;	
+}
+.icon-red-ff{
+background: #ff7300;
+}
+.icon-green-9d{
+background: #9dc61f;
+}
+.heder{
+	position: relative;
+	height: 160px;
+	width: 100%;
+}
+.heder .name{
+	top:50%;
+	margin-top: -15px;
+	margin-bottom: 0;
+	font-size: 1.6rem;
+	position: absolute;
+	left: 130px;
+	display: block;
+}
+.heder .image{
+	border-radius:50%;
+	top:50%;
+	margin-top:-60px;
+	height: 100px;
+	background: #fff;
+	position: absolute;
+	left: 20px;
+	width: 100px;
+	display: block;
+}
+.heder .iconr{
+	color: #00E600;
+}
+.set,.bingding{
+	margin: 0;
+}
+.set.am-list-border>li>a{
+	position: relative;
+	padding:1.8rem 0 1.8rem  80px;
+	color: #222;
+}
+.bingding.tips{
+	margin: 0 20px 15px 20px;
+	width: 100%;
+	font-size: 1.6rem;
+	color: #999999;
+}
+.foot{
+	padding-top: 30px;
+	margin: 0 auto;
+	width: 96%;
+}
+.foot .round{
+	border-radius:4px ;
+}
+.bingding>li>a{
+	padding: 3rem 0 3rem 100px;
+}
+.bingding .iconl{
+	height: 80px;
+	margin-top:-40px ;
+	width: 80px;
+}
+.am-modal-dialog{
+	border-radius:5px ;
+}
+#my-alert .am-btn{
+	border-radius: 4px;
+}
+#my-alert .am-modal-footer{
+	line-height: 40px;
+	height: 50px;
+}
+#my-alert .am-modal-footer .am-btn-success{
+	margin-left: 15px;
+}
+#my-alert .am-modal-bd{
+	border-bottom: none;
+}
+.cont{
+	width: 100%;
+}
+.bor{
+	border-top:1px solid #999 ;
+    margin-bottom: 15px;
+    width: 90%;
+    margin: 0 auto 15px auto;
+}
+/*thelist*/
+#thelist{
+width: 100%;
+margin: 0 auto;
+}
+#thelist .item{
+	width: 90%;
+	margin: 0 auto;
+}
+#thelist .item .title{
+	font-weight: 600;
+	margin-left:5px ;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+#thelist .item .list{
+	margin-bottom: 2px;
+	width: 100%;
+	position: relative;
+	color: #fff;
+	height:50px;
+	
+}
+#thelist .item .list:nth-child(odd)>.name,#thelist .item .list:nth-child(odd)>.value{
+	background: #c3ddb6;
+}
+
+#thelist .item .list .name{
+	position: absolute;
+	background: #a6d8f1;
+	left: 0;
+	width: 49.6%;
+	display: block;
+	height:50px;
+	line-height: 50px;
+	text-align: center;
+}
+#thelist .item .list .value{
+	position: absolute;
+	background: #a6d8f1;
+	right: 0;
+	width: 49.6%;
+	display: block;
+	height:50px;
+	line-height: 50px;
+	text-align: center;
+}
+#thelist .item .list .am-checkbox{
+	position: absolute;
+	left:20px;
+	top:50%;
+	margin-top: -10px;
+	z-index: 200;
+	width: 80%;
+}
+.heder .red{
+	color: red;
+}
+/*warper*/
+
+#wrapper {
+	position: absolute;
+	z-index: 1;
+	top: 200px;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	overflow: hidden;
+}
+#scroller {
+	position: absolute;
+	z-index: 1;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	width: 100%;
+	-webkit-transform: translateZ(0);
+	-moz-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	-o-transform: translateZ(0);
+	transform: translateZ(0);
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-text-size-adjust: none;
+	-moz-text-size-adjust: none;
+	-ms-text-size-adjust: none;
+	-o-text-size-adjust: none;
+	text-size-adjust: none;
+}
+.pullUpIcon {
+	display: block;
+	opacity: 0.4;
+	width: 30px;
+	margin: 0 auto;
+	height: 30px;
+	background: url(../img/loading.png) 0 0 no-repeat;
+	-webkit-background-size: 30px 30px;
+	-ms-background-size: 30px 30px;
+	background-size: 30px 30px;
+}
+.pullUpIcon {
+	-webkit-transform: rotate(-180deg) translateZ(0);
+	-ms-transform: rotate(-180deg) translateZ(0)
+}
+.pullUpIcon {
+	-webkit-transform: rotate(0deg) translateZ(0);
+	-ms-transform: rotate(0deg) translateZ(0)
+}
+.pullUp{
+	height: 50px;
+}
+.pullUp .pullUpIcon {
+	background-position: 0 100%;
+	-webkit-transform: rotate(0deg) translateZ(0);
+	-ms-transform: rotate(0deg) translateZ(0);
+	-webkit-transition-duration: 0ms;
+	-ms-transition-duration: 0ms;
+	-webkit-animation-name: loading;
+	-ms-animation-name: loading;
+	-webkit-animation-duration: 600ms;
+	-ms-animation-duration: 600ms;
+	-webkit-animation-iteration-count: infinite;
+	-ms-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	-ms-animation-timing-function: linear
+}
+.quan{
+	background: #fff;
+	width: 40px;
+	height: 40px;
+	line-height: 40px;
+}
+.quan .icon-10{
+	color: #999;
+}
+.chart .name{
+	margin-top:-30px;
+}
+.chart .valuer{
+	top: 50%;
+    margin-top: -5px;
+    padding: 0;
+    width: 40%;
+    margin-bottom: 0;
+    
+    position: absolute;
+    left: 130px;
+    display: block;
+}
+.chart .valuer span{
+   position: relative;
+   width: 38px;
+   height: 19px;
+   display: inline-block;
+}
+.chart .valuer span b.radius{
+position: absolute;
+    display: block;
+    width: 8px;
+    left: 0;
+    top: 50%;
+    border-radius: 50%;
+    height: 8px;
+   margin-top: -4px;
+}
+.chart .valuer span b.van{
+ position: absolute;
+ right: 2px;
+ font-size: 1.0rem;
+ font-weight: normal;
+ top:0;
+}
+@-webkit-keyframes loading {
+			from {-webkit-transform:rotate(0deg) translateZ(0)}
+			to {-webkit-transform:rotate(360deg) translateZ(0)}
+		}
+		@-ms-keyframes loading {
+			from {-ms-transform:rotate(0deg) translateZ(0)}
+			to {-ms-transform:rotate(360deg) translateZ(0)}
+}
+.am-tabs-default .am-tabs-nav>.am-active a{
+	background:#6bc349;
+	border-radius:4px ;
+}
+.am-tabs-default .am-tabs-nav{
+	border-radius:4px ;
+	background: #fff;
+}
+.am-tabs-bd{
+	border: none;
+}

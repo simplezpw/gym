@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 服务列表 -->
+	<bean id="ServersBean" class="com.vooda.frame.wrap.ServersBean">
+		<property name="serverList">
+			<list>
+				<!-- 
+				<ref bean="TokenServer"/>
+			 	<ref bean="MenuServer"/>
+			 	<ref bean="CleanServer"/>
+			 	 -->
+			</list>
+		</property>
+	</bean>
+
+	<bean id="CleanServer" class="com.vooda.frame.server.CleanServer"></bean>
+	<bean id="TokenServer" class="com.vooda.frame.server.TokenServer"></bean>
+	<bean id="MenuServer" class="com.vooda.frame.server.MenuServer"></bean>
+</beans>

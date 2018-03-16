@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="WeixinMapper">
+	
+	<select id="getMenuList" resultType="WXMenu">
+		SELECT * FROM weixin_menu where statu=1 ORDER BY menu_order ASC 
+	</select>
+	
+</mapper>

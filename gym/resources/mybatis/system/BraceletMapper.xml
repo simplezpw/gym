@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BraceletMapper">
+	
+	<!-- 手环列表 -->
+	<select id="braceletlistPage" parameterType="Page" resultType="pd">
+		select b.id, b.braceletid, b.nickname, b.steps, b.sleeptime, 
+		bs.sittime, bs.statu
+		from ibama_bracelet b 
+		left join ibama_bracelet_sit bs on b.braceletid = bs.braceletid
+		where 1=1
+		<if test="pd.keyword != null and pd.keyword != ''">
+			and (b.braceletid = #{pd.keyword}
+			or b.nickname like concat('%', #{pd.keyword}, '%'))
+		</if>
+		order by b.recordtime desc
+	</select>
+	
+	<!-- 查询最后一条记录时间 -->
+	<select id="queryLastRecordById" parameterType="pd" resultType="pd">
+		select DATE_FORMAT(recordtime, '%Y-%m-%d') as recordtime
+		from 
+			<choose>
+				<when test="datatype == 1">ibama_bracelet_heartrate</when>
+				<when test="datatype == 2">ibama_bracelet_sleep</when>
+				<when test="datatype == 3">ibama_bracelet_step</when>
+			</choose>
+		where braceletid = #{braceletid}
+		limit 0,1
+	</select>
+	
+	<!-- 查询服药提醒  -->
+	<select id="querymedicineremind" parameterType="pd" resultType="pd">
+		select braceletid, remindtype, remindtime, statu, recordtime
+		from ibama_medicine_remind
+		where braceletid = #{braceletid}
+		order by statu, recordtime and statu != 3 desc
+	</select>
+	
+	<!-- 查询一天数据  -->
+	<select id="queryBraceletDataByDay" parameterType="pd" resultType="pd">
+		select 
+			<choose>
+				<when test="datatype == 1">
+					max(maxrate) as maxhr, min(minrate) as minhr, FORMAT(avg(heartrate),0) as avghr,
+				</when>
+				<when test="datatype == 2">
+					deepsleep as avgds, 
+					lightsleep as avgls, 
+					totalsleep as avgts,
+					getuptime,
+					insleeptime,
+				</when>
+				<when test="datatype == 3">
+					step as sumstep,
+				</when>
+			</choose>
+			DATE_FORMAT(recordtime, '%Y-%m-%d') as recordtime
+		from 
+			<choose>
+				<when test="datatype == 1">ibama_bracelet_heartrate</when>
+				<when test="datatype == 2">ibama_bracelet_sleep</when>
+				<when test="datatype == 3">ibama_bracelet_step</when>
+			</choose>
+		where braceletid = #{braceletid}
+		<choose>
+			<when test="datatime != null">
+				group by DATE_FORMAT(recordtime, '%y-%m-%d') 
+				having DATE_FORMAT(recordtime, '%y-%m-%d') = DATE_FORMAT(#{datatime}, '%y-%m-%d')
+				<choose>
+					<when test="datatype == 2">order by recordtime desc</when>
+					<when test="datatype == 3">order by step desc</when>
+				</choose>
+			</when>
+			<otherwise>
+				group by DATE_FORMAT(recordtime, '%y-%m-%d') 
+				order by DATE_FORMAT(recordtime, '%y-%m-%d') desc limit 0,1
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 查询一周数据  -->
+	<select id="queryBraceletDataByWeek" parameterType="pd" resultType="pd">
+		select 
+			<choose>
+				<when test="datatype == 1">ROUND(avg(heartrate)) as avghr,</when>
+				<when test="datatype == 2">ROUND(ifnull(totalsleep / 3600, 0)) as avgts, ROUND(ifnull(totalsleep, 0) / 3600) as tshour,</when>
+				<when test="datatype == 3">step as sumstep, ROUND(ifnull(step / 10000, 0), 2) as wstep,distance, calorie,</when>
+			</choose>
+			WEEKDAY(DATE_FORMAT(recordtime, '%y-%m-%d')) as dindex
+		from 
+			<choose>
+				<when test="datatype == 1">ibama_bracelet_heartrate</when>
+				<when test="datatype == 2">ibama_bracelet_sleep</when>
+				<when test="datatype == 3">ibama_bracelet_step</when>
+			</choose>
+		where braceletid = #{braceletid}
+		and DATE_FORMAT(recordtime, '%y-%m-%d') between 
+			DATE_FORMAT(DATE_SUB(#{datatime},INTERVAL WEEKDAY(#{datatime}) DAY), '%y-%m-%d') and 
+			DATE_FORMAT(DATE_ADD(#{datatime},INTERVAL 6-WEEKDAY(#{datatime}) DAY), '%y-%m-%d')
+		group by DATE_FORMAT(recordtime, '%y-%m-%d') 
+		<choose>
+			<when test="datatype == 2">order by recordtime desc</when>
+			<when test="datatype == 3">order by step desc </when>
+		</choose>
+	</select>
+	
+	<!-- 查询一个月数据  -->
+	<select id="queryBraceletDataByMonth" parameterType="pd" resultType="pd">
+		select recordtime,
+			<choose>
+				<when test="datatype == 1">ROUND(avg(avghr),0) as avghr,</when>
+				<when test="datatype == 2">sum(avgts) as avgts, sum(tshour) as tshour,</when>
+				<when test="datatype == 3">sum(sumstep) as sumstep,sum(wstep) as wstep,</when>
+			</choose>
+			(DAY(recordtime)+WEEKDAY(recordtime-INTERVAL DAY(recordtime) DAY)) DIV 7 + 1 as windex
+		from (
+		select 
+			<choose>
+				<when test="datatype == 1">ROUND(avg(heartrate)) as avghr,</when>
+				<when test="datatype == 2">ROUND(ifnull(totalsleep, 0) / 3600) as avgts, ROUND(ifnull(totalsleep, 0) / 3600) as tshour,</when>
+				<when test="datatype == 3">step as sumstep, ROUND(step / 10000, 2) as wstep,</when>
+			</choose>
+			DATE_FORMAT(recordtime, '%y-%m-%d') as recordtime
+		from 
+			<choose>
+				<when test="datatype == 1">ibama_bracelet_heartrate</when>
+				<when test="datatype == 2">ibama_bracelet_sleep</when>
+				<when test="datatype == 3">ibama_bracelet_step</when>
+			</choose>
+		where braceletid = #{braceletid}
+		and DATE_FORMAT(recordtime, '%y-%m') = DATE_FORMAT(#{datatime}, '%y-%m')
+		group by DATE_FORMAT(recordtime, '%y-%m-%d') 
+			<choose>
+				<when test="datatype == 2">order by recordtime desc</when>
+				<when test="datatype == 3">order by step desc</when>
+			</choose>	
+		) t 
+		group by WEEK(recordtime)
+	</select>
+	
+	<!-- 查询一年数据 -->
+	<select id="queryBraceletDataByYear" parameterType="pd" resultType="pd">
+		select recordtime, 
+			<choose>
+				<when test="datatype == 1">ROUND(avg(avghr),0) as avghr,</when>
+				<when test="datatype == 2">sum(avgts) as avgts, sum(tshour) as tshour,</when>
+				<when test="datatype == 3">sum(sumstep) as sumstep,sum(wstep) as wstep,</when>
+			</choose>
+			DATE_FORMAT(recordtime, '%m') as mindex
+		from (
+		select 
+			<choose>
+				<when test="datatype == 1">ROUND(avg(heartrate)) as avghr,</when>
+				<when test="datatype == 2">ROUND(ifnull(totalsleep, 0) / 3600, 2) as avgts, ROUND(ifnull(totalsleep, 0) / 3600, 2) as tshour,</when>
+				<when test="datatype == 3">ifnull(step, 0) as sumstep, ROUND(ifnull(step / 10000, 0), 2) as wstep,</when>
+			</choose>
+			DATE_FORMAT(recordtime, '%y-%m-%d') as recordtime
+		from 
+			<choose>
+				<when test="datatype == 1">ibama_bracelet_heartrate</when>
+				<when test="datatype == 2">ibama_bracelet_sleep</when>
+				<when test="datatype == 3">ibama_bracelet_step</when>
+			</choose>
+		where braceletid = #{braceletid}
+		and DATE_FORMAT(recordtime, '%y') = DATE_FORMAT(#{datatime}, '%y')
+		group by DATE_FORMAT(recordtime, '%y-%m-%d') 
+			<choose>
+				<when test="datatype == 2">order by recordtime desc</when>
+				<when test="datatype == 3">order by step desc</when>
+			</choose>	
+		) t 
+		group by DATE_FORMAT(recordtime, '%y-%m') 
+	</select>	
+</mapper> 

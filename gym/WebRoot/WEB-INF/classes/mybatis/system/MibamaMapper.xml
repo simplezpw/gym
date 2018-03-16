@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MibamaMapper">
+	<!-- 用户列表  -->
+	<select id="userlistPage" parameterType="Page" resultType="pd">
+		select u.id, u.userid ,u.uuid, u.nickname, u.name, u.password, 
+		DATE_FORMAT(u.register_time, '%Y-%m-%d %H:%i') as register_time,
+		t.deviceids,
+		(select app_version from ibama_location 
+		where userid = u.userid order by report_time desc limit 0,1) as app_version 
+		from ibama_user u left join 
+		(select group_concat(deviceid) as deviceids, userid from 
+		ibama_user_device d group by userid) t on u.userid = t.userid
+		where 1=1
+		<if test="pd.id != null and pd.id > 0">
+			and u.id = #{pd.id}
+		</if>
+		<if test="pd.userid != null and pd.userid != ''">
+			and u.userid = #{pd.userid}
+		</if>
+		<if test="pd.nickname != null and pd.nickname != ''">
+			and u.nickname = #{pd.nickname}
+		</if>
+		<if test="pd.stime != null and pd.stime != ''">
+			and u.register_time &gt; #{pd.stime}
+		</if>
+		<if test="pd.etime != null and pd.etime != ''">
+			and u.register_time &lt; #{pd.etime}
+		</if>
+		order by u.register_time desc
+	</select>
+	<!-- 用户详情  -->
+	<select id="userDetail" parameterType="pd" resultType="pd">
+		select u.id, u.userid ,u.uuid, u.nickname, u.name, u.password, u.avatar,
+		DATE_FORMAT(u.register_time, '%Y-%m-%d %H:%i') as register_time,
+		(select group_concat(friends_userid) 
+		from ibama_friends group by my_userid having my_userid = #{user_id}) as join_friends,
+		(select group_concat(my_userid) 
+			from ibama_friends group by friends_userid having friends_userid = #{user_id}) as friendids,
+		(select group_concat(deviceid) from 
+		ibama_user_device d group by userid having userid = #{user_id}) as deviceids,
+		t.app_version, t.longitude, t.latitude
+		from ibama_user u left join 
+		(select userid, app_version, longitude, latitude from ibama_location 
+		where userid = #{user_id} order by report_time desc limit 0,1 ) t
+		on u.userid = t.userid 
+		where u.userid = #{user_id}
+	</select>
+	
+	<!-- 设备列表  -->
+	<select id="devicelistPage" parameterType="Page" resultType="pd">
+		select 
+			d.*, t.userids, w.names
+		from 
+		ibama_device d left join 
+		(select group_concat(userid) as userids, deviceid from 
+		ibama_user_device d group by deviceid order by record_time) t on d.deviceid = t.deviceid
+		left join 
+		(select group_concat(name) as names, deviceid from ibama_healthuser h 
+			group by h.deviceid ) w on d.deviceid = w.deviceid
+		where 1=1
+		<if test="pd.userid != null and pd.userid > 0">
+			and t.userids like concat('%', #{pd.userid}, '%')
+		</if>
+		<if test="pd.deviceid != null and pd.deviceid != ''">
+			and d.deviceid = #{pd.deviceid}
+		</if>
+		<if test="pd.name != null and pd.name != ''">
+			and w.names like concat('%', #{pd.name},'%')
+		</if>
+		order by record_time desc
+	</select>
+	
+	<select id="deviceDetail" parameterType="pd" resultType="pd">
+		select *, deviceid as did,
+		(select group_concat(userid) from 
+		ibama_user_device d group by deviceid having deviceid = did) as userids,
+		(select group_concat(name) from ibama_healthuser h 
+			group by h.deviceid having h.deviceid = did ) as names
+		from 
+		ibama_device
+		where id = #{device_id}
+	</select>
+	
+	<select id="feedbacklistPage" parameterType="Page" resultType="pd">
+		select * from 
+		ibama_feedback
+		order by record_time desc
+	</select>
+	
+	<select id="queryFeedBackById" parameterType="pd" resultType="pd">
+		select * from ibama_feedback where id = #{id}
+	</select>
+	
+	<delete id="deletefeedbackById" parameterType="pd">
+		delete from ibama_feedback where id = #{id}
+	</delete>
+		
+	<delete id="deletefeedbackByIds" parameterType="list">
+		delete from ibama_feedback
+		where id in 
+		<foreach collection="list" close=")" open="(" separator="," item="id">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="pushlistPage" parameterType="Page" resultType="pd">
+		select * from ibama_sys_push order by push_time
+	</select>
+	
+	<select id="querySysPushById" parameterType="pd" resultType="pd">
+		select * from ibama_sys_push where id = #{id}
+	</select>
+	
+	<insert id="insertSysPush" parameterType="pd">
+		insert into ibama_sys_push
+		(title, content, push_type, build_time)
+		values
+		(#{title}, #{content}, #{push_type}, now())
+	</insert>
+	
+	<update id="updatePushTime" parameterType="pd">
+		update ibama_sys_push
+		set push_time = now(),
+		push_statu = #{statu}
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteSysPushById" parameterType="pd">
+		delete from ibama_sys_push where id = #{id}
+	</delete>
+	
+	<select id="userRegistByDay" resultType="int" parameterType="pd">
+		select count(1) from ibama_user 
+		where DATE_FORMAT(register_time, '%Y-%m-%d') = DATE_FORMAT(now(), '%Y-%m-%d')
+	</select>
+	
+	<select id="userRegistByWeek" parameterType="pd" resultType="int">
+		select count(1) from ibama_user
+		where register_time > DATE_SUB(CURDATE(), INTERVAL 1 WEEK)
+	</select>
+	
+	<select id="userRegistByMonth" parameterType="pd" resultType="int">
+		select count(1) from ibama_user 
+		where DATE_FORMAT(register_time, '%Y-%m') = DATE_FORMAT(now(), '%Y-%m')
+	</select>
+	
+	<select id="userRegistTotal" parameterType="pd" resultType="int">
+		select count(1) from ibama_user
+	</select>
+	
+	<select id="queryLoglistPage" parameterType="Page" resultType="pd">
+		select o.*, u.NAME from sys_oper_log o left join sys_user u on o.sysuid = u.USER_ID
+		where 1=1 
+		<if test="pd.stime != null and pd.stime != ''">
+			and o.logtime >= #{pd.stime}
+		</if>
+		<if test="pd.etime != null and pd.etime != ''">
+			and o.logtime &lt;= #{pd.etime}
+		</if>
+		order by o.logtime desc
+	</select>
+	
+	<select id="querySysLogById" parameterType="pd" resultType="pd">
+		select * from sys_oper_log where id = #{id}
+	</select>
+	
+	<delete id="deleteSysLogById" parameterType="pd">
+		delete from sys_oper_log where id = #{id}
+	</delete>
+	
+	<select id="userRegistInfo" parameterType="pd" resultType="pd">
+		select count(1) as regsum, register_time,
+		<choose>
+			<when test="month != null and month != 0">
+				concat(DATE_FORMAT(register_time, '%d'), '号') as regist_time
+			</when>
+			<otherwise>
+				concat(DATE_FORMAT(register_time, '%m'), '月') as regist_time
+			</otherwise>
+		</choose>
+		from ibama_user 
+		<choose>
+			<when test="month != null and month != 0">
+				group by DATE_FORMAT(register_time, '%Y-%m-%d') 
+				having DATE_FORMAT(register_time, '%Y-%c') = concat(#{year}, '-', #{month})
+			</when>
+			<otherwise>
+				<choose>
+					<when test="year != null">
+						group by DATE_FORMAT(register_time, '%Y-%m')
+						having DATE_FORMAT(register_time, '%Y') = #{year}
+					</when>
+					<otherwise>
+						group by DATE_FORMAT(register_time, '%Y-%m')
+						having DATE_FORMAT(register_time, '%Y') = DATE_FORMAT(now(), '%Y')
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+		order by register_time 
+	</select>
+	
+	<delete id="delSysLogByIds" parameterType="list">
+		delete from sys_oper_log
+		where id in 
+		<foreach collection="list" close=")" open="(" separator="," item="id">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="advertlistPage" parameterType="Page" resultType="pd">
+		select * from ibama_advert where 1=1
+		<if test="pd.statu != null and pd.statu != '-1'">
+			and pic_statu = #{pd.statu}
+		</if>
+		order by pic_statu, order_time desc
+	</select>
+	
+	<update id="updateAdvert" parameterType="pd">
+		update ibama_advert 
+		set	
+		<trim suffixOverrides=",">
+			<if test="pic_statu != null">
+				pic_statu = #{pic_statu},
+			</if>
+			<if test="toTop != null">
+				order_time = now(),
+			</if>
+			<if test="pic_type != null">
+				pic_type = #{pic_type},
+			</if>
+		</trim>
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteAdvertById" parameterType="pd">
+		delete from ibama_advert
+		where id = #{id}
+	</delete>
+	
+	<insert id="insertAdvert" parameterType="pd">
+		insert into ibama_advert
+		(pic_desc, pic_path, pic_href, pic_type, pic_kind, order_time, create_time)
+		values
+		(#{pic_desc}, #{pic_path}, #{pic_href}, #{pic_type}, #{pic_kind}, now(), now())
+	</insert>
+	
+	<select id="selectadvdetail" parameterType="pd" resultType="pd">
+		select * from ibama_advert
+		where id = #{id}
+	</select>
+	
+	<select id="queryVersionlistPage" parameterType="Page" resultType="pd">
+		select * from ibama_app_version 
+		where 1=1
+		<if test="pd.apptype != null and pd.apptype > -1">
+			and apptype = #{pd.apptype}
+		</if>
+		order by is_new
+	</select>
+	
+	<insert id="insertVersion" parameterType="pd">
+		insert into ibama_app_version
+		(version, location, apptype, remark, logtime)
+		values
+		(#{version}, #{location}, #{apptype}, #{remark}, now())
+	</insert>
+	
+	<update id="updateOldVersion" parameterType="pd">
+		update ibama_app_version
+		set is_new = '1'
+		where apptype = #{apptype} 
+		and is_new = '0'
+	</update>
+	
+	<update id="updateNewVersion" parameterType="pd">
+		update ibama_app_version
+		set is_new = '0'
+		where id = #{id}
+	</update>
+	
+	<select id="versionDetail" parameterType="pd" resultType="pd">
+		select * from ibama_app_version
+		where id = #{id}
+	</select>
+	
+	<update id="updateVersion" parameterType="pd">
+		update ibama_app_version
+		set 
+		<trim suffixOverrides=",">
+			<if test="version != null and version != ''">
+				version = #{version},
+			</if>
+			<if test="apptype != null and apptype > -1">
+				apptype = #{apptype},
+			</if>
+			<if test="remark != null and remark != ''">
+				remark = #{remark},
+			</if>
+			<if test="location != null and location != ''">
+				location = #{location},
+			</if>
+		</trim>
+		where id = #{id}
+	</update>
+	
+	<select id="selecthealthusers" parameterType="pd" resultType="pd">
+		select id, name from ibama_healthuser where deviceid = #{deviceid}
+	</select>
+	
+	<!-- 健康详情  -->
+	<select id="healthDetaillistPage" parameterType="Page" resultType="pd">
+		select t.id, t.name , t.data_one, t.data_two, t.type, 
+		DATE_FORMAT(t.record_time, '%Y-%m-%d %H:%i:%s') as record_time
+		from 
+		(select t.id ,name, systolic_pressure as data_one, 
+		diastolic_pressure as data_two, p.record_time, '1' as type
+		from (select id, name from ibama_healthuser
+		where deviceid = #{pd.deviceid}) t left join ibama_bloodpressure p on t.id = p.healthuser_id   
+		union all
+		select t.id ,name, sugar as data_one, '' as data_two, p.record_time, '2' as type
+		from (select id, name from ibama_healthuser
+		where deviceid = #{pd.deviceid}) t left join ibama_bloodsugar p on t.id = p.healthuser_id 
+		union all
+		select t.id ,name, rate as data_one, '' as data_two, p.record_time, '3' as type
+		from (select id, name from ibama_healthuser
+		where deviceid = #{pd.deviceid}) t left join ibama_heartrate p on t.id = p.healthuser_id 
+		union all
+		select t.id ,name, weight as data_one, '' as data_two, p.record_time, '4' as type
+		from (select id, name from ibama_healthuser
+		where deviceid = #{pd.deviceid}) t left join ibama_weight p on t.id = p.healthuser_id ) t
+		where 1=1
+		<if test="pd.stime != null and pd.stime != ''">
+			and t.record_time &gt;= #{pd.stime}
+		</if>
+		<if test="pd.etime != null and pd.etime != ''">
+			and t.record_time &lt;= #{pd.etime}
+		</if>
+		<if test="pd.id != null and pd.id > 0">
+			and t.id = #{pd.id}
+		</if>
+		order by t.record_time desc
+	</select>
+</mapper> 
